@@ -22,22 +22,7 @@ class ConfigEditor(QMainWindow):
 
         self.config_data = self.load_config()
 
-        for key, value in self.config_data.items():
-            label = QLabel(key)
-            spin_box = QSpinBox()
-
-            if isinstance(value, int):
-                spin_box.setValue(value)
-            elif isinstance(value, list) and all(isinstance(v, int) for v in value):
-                spin_box.setValue(value[0])
-            else:
-                spin_box.setValue(0)
-
-            spin_box.setAlignment(Qt.AlignRight)
-            spin_box.valueChanged.connect(lambda val, k=key: self.update_config(k, val))
-
-            self.layout.addWidget(label)
-            self.layout.addWidget(spin_box)
+        self.create_widgets_from_config(self.config_data)
 
         self.backup_button = QPushButton("Backup")
         self.backup_button.clicked.connect(self.backup_config)
@@ -48,6 +33,35 @@ class ConfigEditor(QMainWindow):
         self.layout.addWidget(self.save_button)
 
         self.central_widget.setLayout(self.layout)
+
+    def create_widgets_from_config(self, config_data, parent=None):
+        for key, value in config_data.items():
+            label = QLabel(key)
+            spin_box = QSpinBox()
+
+            if isinstance(value, int):
+                spin_box.setValue(value)
+            elif isinstance(value, list) and all(isinstance(v, int) for v in value):
+                spin_box.setValue(value[0])
+            elif isinstance(value, dict):
+                # Recursive call for nested structures
+                group_box = QWidget(parent)
+                nested_layout = QVBoxLayout(group_box)
+                self.create_widgets_from_config(value, parent=group_box)
+                self.layout.addWidget(group_box)
+                continue
+            else:
+                spin_box.setValue(0)
+
+            spin_box.setAlignment(Qt.AlignRight)
+            spin_box.valueChanged.connect(lambda val, k=key: self.update_config(k, val))
+
+            self.layout.addWidget(label)
+            self.layout.addWidget(spin_box)
+
+    def update_config(self, key, value):
+        # Add your logic to update the configuration data
+        print(f"Updating config: {key} - {value}")
 
     def load_config(self):
         if not os.path.exists("config.yaml"):
