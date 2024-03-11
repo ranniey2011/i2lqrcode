@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea,QLineEdit
 from PyQt5.QtCore import Qt
 import yaml
 import os
@@ -15,7 +15,7 @@ class ConfigEditor(QMainWindow):
         self.WGarray=[]
 
         self.setWindowTitle("Config Editor")
-        self.setGeometry(100, 100, 400, 400)
+        self.setGeometry(48, 48, 1000, 1000)
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -45,14 +45,14 @@ class ConfigEditor(QMainWindow):
         self.save_button.clicked.connect(self.save_config)
         self.layout.addWidget(self.save_button)
 
-    def add_title(self,parent,group_box,key):
+    def add_title(self,parent,group_box,key,color):
         # Recursive call for nested structures
         group_box = QWidget(parent)
         group_layout = QVBoxLayout(group_box)
 
         # Add title with background color
         title_label = QLabel(key)
-        title_label.setStyleSheet("background-color: green;")
+        title_label.setStyleSheet('background-color: '+color+';')
         group_layout.addWidget(title_label)
         return group_box
 
@@ -75,10 +75,9 @@ class ConfigEditor(QMainWindow):
                 title_label.setStyleSheet("background-color: pink;")
                 group_layout.addWidget(title_label)
 
-                self.WGarray.append(self.add_title(parent,group_box,'end of group'))
+                self.WGarray.append(self.add_title(parent,group_box,'end of group','green'))
 
                 self.create_widgets_from_config(value, parent=group_box)
-                #self.layout.addWidget(group_box)
                 self.WGarray.append(group_box)
                 continue
             else:
@@ -88,7 +87,12 @@ class ConfigEditor(QMainWindow):
             spin_box.valueChanged.connect(lambda val, k=key: self.update_config(k, val))
 
             #self.layout.addWidget(label)
-            self.WGarray.append(spin_box)
+            if isinstance(value,str):
+                txt_box = QLineEdit()
+                txt_box.setText(value)
+                self.WGarray.append(txt_box)
+            else:
+                self.WGarray.append(spin_box)
             self.WGarray.append(label)
             #self.layout.addWidget(spin_box)
 
@@ -104,9 +108,6 @@ class ConfigEditor(QMainWindow):
                         item = layout.itemAt(i)
                         if isinstance(item.widget(), QLabel) and item.widget().styleSheet().strip() == "background-color: pink;":
                             print("pink!")
-
-
-
 
     def load_config(self):
         if not os.path.exists("config.yaml"):
