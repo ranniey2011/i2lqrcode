@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea
 from PyQt5.QtCore import Qt
 import yaml
 import os
@@ -18,7 +18,17 @@ class ConfigEditor(QMainWindow):
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
-        self.layout = QVBoxLayout()
+        # Create a scroll area to handle too much content
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.central_widget.setLayout(QVBoxLayout())
+        self.central_widget.layout().addWidget(self.scroll_area)
+
+        # Create a widget to hold your content
+        self.scroll_content_widget = QWidget()
+        self.scroll_area.setWidget(self.scroll_content_widget)
+
+        self.layout = QVBoxLayout(self.scroll_content_widget)
 
         self.config_data = self.load_config()
 
@@ -31,8 +41,6 @@ class ConfigEditor(QMainWindow):
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_config)
         self.layout.addWidget(self.save_button)
-
-        self.central_widget.setLayout(self.layout)
 
     def create_widgets_from_config(self, config_data, parent=None):
         for key, value in config_data.items():
