@@ -12,6 +12,8 @@ class ConfigEditor(QMainWindow):
     def __init__(self):
         super(ConfigEditor, self).__init__()
 
+        self.WGarray=[]
+
         self.setWindowTitle("Config Editor")
         self.setGeometry(100, 100, 400, 400)
 
@@ -33,6 +35,7 @@ class ConfigEditor(QMainWindow):
         self.config_data = self.load_config()
 
         self.create_widgets_from_config(self.config_data)
+        self.cWFC_after_burn()
 
         self.backup_button = QPushButton("Backup")
         self.backup_button.clicked.connect(self.backup_config)
@@ -41,6 +44,17 @@ class ConfigEditor(QMainWindow):
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_config)
         self.layout.addWidget(self.save_button)
+
+    def add_title(self,parent,group_box,key):
+        # Recursive call for nested structures
+        group_box = QWidget(parent)
+        group_layout = QVBoxLayout(group_box)
+
+        # Add title with background color
+        title_label = QLabel(key)
+        title_label.setStyleSheet("background-color: green;")
+        group_layout.addWidget(title_label)
+        return group_box
 
     def create_widgets_from_config(self, config_data, parent=None):
         for key, value in config_data.items():
@@ -54,9 +68,18 @@ class ConfigEditor(QMainWindow):
             elif isinstance(value, dict):
                 # Recursive call for nested structures
                 group_box = QWidget(parent)
-                nested_layout = QVBoxLayout(group_box)
+                group_layout = QVBoxLayout(group_box)
+
+                # Add title with background color
+                title_label = QLabel(key)
+                title_label.setStyleSheet("background-color: pink;")
+                group_layout.addWidget(title_label)
+
+                self.WGarray.append(self.add_title(parent,group_box,'end of group'))
+
                 self.create_widgets_from_config(value, parent=group_box)
-                self.layout.addWidget(group_box)
+                #self.layout.addWidget(group_box)
+                self.WGarray.append(group_box)
                 continue
             else:
                 spin_box.setValue(0)
@@ -64,12 +87,26 @@ class ConfigEditor(QMainWindow):
             spin_box.setAlignment(Qt.AlignRight)
             spin_box.valueChanged.connect(lambda val, k=key: self.update_config(k, val))
 
-            self.layout.addWidget(label)
-            self.layout.addWidget(spin_box)
+            #self.layout.addWidget(label)
+            self.WGarray.append(spin_box)
+            self.WGarray.append(label)
+            #self.layout.addWidget(spin_box)
 
-    def update_config(self, key, value):
-        # Add your logic to update the configuration data
-        print(f"Updating config: {key} - {value}")
+    def cWFC_after_burn(self):
+        for x in reversed(self.WGarray):
+            self.layout.addWidget(x)
+            if isinstance(x, QWidget):
+                # Assuming x is a QWidget, check for QVBoxLayout
+                layout = x.layout()
+                if isinstance(layout, QVBoxLayout):
+                    # Assuming QVBoxLayout is found, check for QLabel with pink background color
+                    for i in range(layout.count()):
+                        item = layout.itemAt(i)
+                        if isinstance(item.widget(), QLabel) and item.widget().styleSheet().strip() == "background-color: pink;":
+                            print("pink!")
+
+
+
 
     def load_config(self):
         if not os.path.exists("config.yaml"):
@@ -84,8 +121,9 @@ class ConfigEditor(QMainWindow):
         create_default_config()
 
 
-    #def update_config(self, key, value):
-    #    self.config_data[key] = value
+    def update_config(self, key, value):
+        print(f"Updating config: {key} - {value}")
+        self.config_data[key] = value
 
     def save_config(self):
         with open("config.yaml", "w") as file:
