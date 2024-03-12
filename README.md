@@ -1,8 +1,8 @@
 # CNN+LSTM
 
-conda activate py7
+conda activate p369
 
-using python 3.7 as default
+using python 3..6.9 as default
 
 
 ## todo
