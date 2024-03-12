@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea,QLineEdit,QCheckBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea,QLineEdit,QCheckBox,QDoubleSpinBox
 from PyQt5.QtCore import Qt
 import yaml
 import os
@@ -60,6 +60,8 @@ class ConfigEditor(QMainWindow):
         for key, value in config_data.items():
             label = QLabel(key)
             spin_box = QSpinBox()
+            spin_box.setMinimum(-99999)
+            spin_box.setMaximum(99999)
 
             if isinstance(value, int):
                 spin_box.setValue(value)
@@ -81,7 +83,7 @@ class ConfigEditor(QMainWindow):
                 self.WGarray.append(group_box)
                 continue
             else:
-                spin_box.setValue(0)
+                print('ERROR! if else default!')
 
             spin_box.setAlignment(Qt.AlignRight)
             spin_box.valueChanged.connect(lambda val, k=key: self.update_config(k, val))
@@ -95,6 +97,12 @@ class ConfigEditor(QMainWindow):
                 checkbox = QCheckBox('Enable Feature')
                 checkbox.setChecked(value)
                 self.WGarray.append(checkbox)
+            elif isinstance(value,float):
+                sb=QDoubleSpinBox()
+                sb.setValue(value)
+                sb.setMinimum(-99999)
+                sb.setMaximum(99999)
+                self.WGarray.append(sb)
             else:
                 self.WGarray.append(spin_box)
             self.WGarray.append(label)
