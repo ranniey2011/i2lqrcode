@@ -8,9 +8,9 @@ def create_default_config():
         "trainer": {
             "gpus": 1,
             "overfit_batches": 0.0,
-            "check_val_every_n_epoch": 1,
+            "check_val_every_n_epoch": 2,
             "fast_dev_run": False,
-            "max_epochs": 1,
+            "max_epochs": 15,
             "min_epochs": 1,
             "num_sanity_val_steps": 0,
             "auto_lr_find": False,
@@ -32,8 +32,8 @@ def create_default_config():
             }
         },
         "data": {
-            "batch_size": 32,
-            "num_workers": 4,
+            "batch_size": 8,
+            "num_workers": 0,
             "pin_memory": False
         },
         "lit_model": {

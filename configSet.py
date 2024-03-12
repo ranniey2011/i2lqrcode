@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea,QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QSpinBox, QPushButton, QScrollArea,QLineEdit,QCheckBox
 from PyQt5.QtCore import Qt
 import yaml
 import os
@@ -91,6 +91,10 @@ class ConfigEditor(QMainWindow):
                 txt_box = QLineEdit()
                 txt_box.setText(value)
                 self.WGarray.append(txt_box)
+            elif isinstance(value,bool):
+                checkbox = QCheckBox('Enable Feature')
+                checkbox.setChecked(value)
+                self.WGarray.append(checkbox)
             else:
                 self.WGarray.append(spin_box)
             self.WGarray.append(label)
